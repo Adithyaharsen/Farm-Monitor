@@ -1,109 +1,80 @@
-import { StyleSheet, Image, Platform } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-
-export default function TabTwoScreen() {
+export default function ExploreScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <View style={styles.container}>
+      {cardData.slice(0, 6).map((card, index) => (
+        <View key={index} style={[styles.card, { backgroundColor: card.bgColor }]}> 
+          <Text style={styles.cardTitle}>{card.title}</Text>
+          <View style={[styles.cardValueContainer, { backgroundColor: card.valueBgColor }]}> 
+            <Text style={styles.cardValue}>{card.value}</Text>
+          </View>
+        </View>
+      ))}
+      <View style={[styles.card, styles.bottomCenteredCard, { backgroundColor: cardData[6].bgColor }]}> 
+        <Text style={styles.cardTitle}>{cardData[6].title}</Text>
+        <View style={[styles.cardValueContainer, { backgroundColor: cardData[6].valueBgColor }]}> 
+          <Text style={styles.cardValue}>{cardData[6].value}</Text>
+        </View>
+      </View>
+    </View>
   );
 }
 
+const cardData = [
+  { title: 'Nitrogen', value: '10', bgColor: '#ff4d4d', valueBgColor: '#ff6666' },
+  { title: 'Phosphorus', value: '20', bgColor: '#ff944d', valueBgColor: '#ffad66' },
+  { title: 'Potassium', value: '30', bgColor: '#ffcc4d', valueBgColor: '#ffd966' },
+  { title: 'Temperature', value: '40.0000000', bgColor: '#aaff4d', valueBgColor: '#bfff66' },
+  { title: 'Humidity', value: '50.0000000', bgColor: '#4dff88', valueBgColor: '#66ffaa' },
+  { title: 'Ph', value: '60.000000000', bgColor: '#4dd2ff', valueBgColor: '#66e0ff' },
+  { title: 'Rainfall', value: '70.0000000', bgColor: '#4d88ff', valueBgColor: '#6699ff' },
+];
+
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
-  titleContainer: {
+  container: {
+    flex: 1,
     flexDirection: 'row',
-    gap: 8,
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    padding: 20,
+    paddingTop: 70, // Added spacing at the top
+    backgroundColor: '#000',
+  },
+  card: {
+    width: '40%',
+    height: 150,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 10,
+    borderRadius: 15,
+    padding: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 4, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 8,
+  },
+  bottomCenteredCard: {
+    alignSelf: 'center',
+    marginTop: 20,
+  },
+  cardTitle: {
+    color: '#fff',
+    fontSize: 21,
+    fontWeight: 'bold',
+    marginBottom: 18,
+  },
+  cardValueContainer: {
+    width: '100%',
+    paddingVertical: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  cardValue: {
+    color: '#111',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
 });
