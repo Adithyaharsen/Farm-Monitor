@@ -1,13 +1,64 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { RadioButton } from 'react-native-paper';
 
+// ✅ Define LogEntry type for fetched data
+export type LogEntry = {
+  time: string;
+  nitrogen: string;
+  phosphorus: string;
+  potassium: string;
+  temperature: string;
+  humidity: string;
+  ph: string;
+  rainfall: string;
+  color: string;
+};
+
+const API_URL = 'https://api.thingspeak.com/channels/2872903/feeds.json?api_key=2AOWTSFZ2LBH1SLI&results=50'; // Replace with your ThingSpeak channel ID
+
 export default function LogsScreen() {
-  const [selectedAttribute, setSelectedAttribute] = useState('Nitrogen');
-  const attributes = ['Nitrogen', 'Phosphorus', 'Potassium', 'Temperature', 'Humidity', 'Ph', 'Rainfall'];
+  const [selectedAttribute, setSelectedAttribute] = useState<keyof LogEntry>('nitrogen');
+  const attributes: (keyof LogEntry)[] = ['nitrogen', 'phosphorus', 'potassium', 'temperature', 'humidity', 'ph', 'rainfall'];
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+
+  // ✅ Fetch data from ThingSpeak every 30 seconds
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+
+        if (data.feeds) {
+          const colors = ['#1E1E1E', '#252525', '#2E2E2E', '#3A3A3A'];
+          const parsedLogs: LogEntry[] = data.feeds.map((entry: any, index: number) => ({
+            time: new Date(entry.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }),
+            nitrogen: entry.field1 ? `${entry.field1}%` : 'N/A',
+            phosphorus: entry.field2 ? `${entry.field2}%` : 'N/A',
+            potassium: entry.field3 ? `${entry.field3}%` : 'N/A',
+            temperature: entry.field4 ? `${entry.field4}°C` : 'N/A',
+            humidity: entry.field5 ? `${entry.field5}%` : 'N/A',
+            ph: entry.field6 ? entry.field6 : 'N/A',
+            rainfall: entry.field7 ? `${entry.field7}mm` : 'N/A',
+            color: colors[index % colors.length],
+          }));
+
+          setLogs(parsedLogs);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData(); // Initial fetch
+    const interval = setInterval(fetchData, 30000); // Fetch every 30 seconds
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, []);
 
   return (
     <View style={styles.container}>
+      {/* Attribute Selection */}
       <View style={styles.radioGroup}>
         {attributes.map((attr) => (
           <View key={attr} style={styles.radioButtonContainer}>
@@ -17,19 +68,23 @@ export default function LogsScreen() {
               onPress={() => setSelectedAttribute(attr)}
               color="#fff"
             />
-            <Text style={styles.radioText}>{attr}</Text>
+            <Text style={styles.radioText}>{attr.charAt(0).toUpperCase() + attr.slice(1)}</Text>
           </View>
         ))}
       </View>
+
+      {/* Header */}
       <View style={styles.headerRow}>
         <Text style={styles.headerText}>Time</Text>
-        <Text style={styles.headerText}>{selectedAttribute}</Text>
+        <Text style={styles.headerText}>{selectedAttribute.charAt(0).toUpperCase() + selectedAttribute.slice(1)}</Text>
       </View>
+
+      {/* Log Data */}
       <ScrollView style={styles.scrollView}>
-        {logData.map((log, index) => (
+        {logs.map((log, index) => (
           <View key={index} style={[styles.row, { backgroundColor: log.color }]}> 
             <Text style={styles.cell}>{log.time}</Text>
-            <Text style={styles.cell}>{log[selectedAttribute.toLowerCase() as keyof LogEntry] || 'N/A'}</Text>
+            <Text style={styles.cell}>{log[selectedAttribute] || 'N/A'}</Text>
           </View>
         ))}
       </ScrollView>
@@ -37,83 +92,15 @@ export default function LogsScreen() {
   );
 }
 
-const generateLogs = () => {
-  const colors = ['#1E1E1E', '#252525', '#2E2E2E', '#3A3A3A'];
-  let logs = [];
-  let currentTime = new Date();
-  currentTime.setHours(0, 0, 0, 0);
-  for (let i = 0; i < 50; i++) {
-    logs.push({
-      time: currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }),
-      nitrogen: `${Math.floor(Math.random() * 10) + 15}%`,
-      phosphorus: `${Math.floor(Math.random() * 10) + 10}%`,
-      potassium: `${Math.floor(Math.random() * 10) + 5}%`,
-      temperature: `${Math.floor(Math.random() * 15) + 20}°C`,
-      humidity: `${Math.floor(Math.random() * 40) + 40}%`,
-      ph: `${(Math.random() * 2 + 5).toFixed(1)}`,
-      rainfall: `${Math.floor(Math.random() * 20) + 1}mm`,
-      color: colors[i % colors.length],
-    });
-    currentTime.setMinutes(currentTime.getMinutes() + 15);
-  }
-  return logs;
-};
-
-const logData = generateLogs();
-
+// 🎨 Styles (Same as before)
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    paddingTop: 70,
-    backgroundColor: '#000',
-  },
-  scrollView: {
-    marginTop: 10,
-  },
-  radioGroup: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  radioButtonContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  radioText: {
-    color: '#fff',
-    fontSize: 16,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#fff',
-  },
-  headerText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    marginBottom: 5,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 2, height: 2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 4,
-    elevation: 6,
-  },
-  cell: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
+  container: { flex: 1, padding: 20, paddingTop: 70, backgroundColor: '#000' },
+  scrollView: { marginTop: 10 },
+  radioGroup: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginBottom: 20 },
+  radioButtonContainer: { flexDirection: 'row', alignItems: 'center', marginRight: 10 },
+  radioText: { color: '#fff', fontSize: 16 },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#fff' },
+  headerText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
+  row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, paddingHorizontal: 10, marginBottom: 5, borderRadius: 10, elevation: 6 },
+  cell: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
 });
