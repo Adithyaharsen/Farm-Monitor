@@ -1,12 +1,10 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { useState, useEffect } from 'react';
-import { LogEntry } from './logs'; // ✅ Import LogEntry type
+import { LogEntry } from './logs';
 import axios from 'axios';
 
 const API_URL = 'https://api.thingspeak.com/channels/2872903/feeds.json?api_key=2AOWTSFZ2LBH1SLI&results=1';
-// ✅ Replace with your ThingSpeak channel ID
 
-// ✅ Restored Colors for Each Sensor Field
 const cardColors: Record<keyof Omit<LogEntry, 'time' | 'color'>, { bgColor: string; valueBgColor: string }> = {
   nitrogen: { bgColor: '#ff4d4d', valueBgColor: '#ff6666' },
   phosphorus: { bgColor: '#ff944d', valueBgColor: '#ffad66' },
@@ -20,35 +18,25 @@ const cardColors: Record<keyof Omit<LogEntry, 'time' | 'color'>, { bgColor: stri
 export default function ExploreScreen() {
   const [latestLog, setLatestLog] = useState<LogEntry | null>(null);
 
-  // ✅ Fetch the latest log entry from ThingSpeak
+  // Fetch the latest log entry from ThingSpeak
   useEffect(() => {
     const fetchLatestLog = async () => {
       try {
         const response = await fetch(API_URL);
         const data = await response.json();
         const entry = data.feeds[0]; // Get the latest log
-        
 
-        let anomalies: string[] = [];
-
-        const payload = {
+        const response1 = await axios.post("http://192.168.1.124:5000/predict", {
           nitrogen: entry.field5,
           phosphorus: entry.field6,
           potassium: entry.field7,
           temperature: entry.field1,
-          moisture: entry.field2
-        };
-
-        axios
-          .post('http://10.96.41.137:5000/predict', payload)
-          .then((response) => {
-            anomalies = response.data.anomalous_features || [];
-            console.log('Anomalous Features:', anomalies);
-          })
-          .catch((error) => {
-            console.error('Error fetching anomalies:', error);
-          });
-
+          moisture: entry.field2,
+        });
+        const anomalies = response1.data.anomalous_features;
+        console.log(response1);
+        console.log(response1.data);
+        console.log(anomalies);
 
         if (entry) {
           setLatestLog({
@@ -60,7 +48,7 @@ export default function ExploreScreen() {
             moisture: entry.field2 ? `${entry.field2}%RH` : 'N/A',
             ph: entry.field4 ? entry.field4 : 'N/A',
             conductivity: entry.field3 ? `${entry.field3}mm` : 'N/A',
-            color: '#4d88ff', // Default color (not used now since we restored colors per field)
+            color: '#4d88ff', 
           });
         }
       } catch (error) {
@@ -69,9 +57,9 @@ export default function ExploreScreen() {
     };
 
     fetchLatestLog(); // Fetch initially
-    const interval = setInterval(fetchLatestLog, 30000); // Fetch every 30 seconds
+    const interval = setInterval(fetchLatestLog, 10000);
 
-    return () => clearInterval(interval); // Cleanup on unmount
+    return () => clearInterval(interval);
   }, []);
 
   if (!latestLog) return <Text style={styles.loadingText}>Loading...</Text>;
@@ -92,7 +80,6 @@ export default function ExploreScreen() {
   );
 }
 
-// 🎨 Styles (Restored)
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -11,7 +11,7 @@ const payload = {
 };
 
 axios
-  .post('http://172.22.8.168:5000/predict', payload)
+  .post('http://192.168.1.124:5000/predict', payload)
   .then((response) => {
     anomalies = response.data.anomalous_features || [];
     console.log('Anomalous Features:', anomalies);
