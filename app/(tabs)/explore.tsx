@@ -60,14 +60,6 @@ export default function ExploreScreen() {
             );
             setAlertShown(true); // Avoid future alerts until app reloads or you reset it
           }
-          else{
-            Alert.alert(
-              "No Anomaly Detected",
-              `Anomaly arose in: nothing`,
-              [{ text: "OK", onPress: () => console.log("Alert closed") }]
-            );
-            setAlertShown(true);
-          }
         }
       } catch (error) {
         console.error('Error fetching latest log:', error);
