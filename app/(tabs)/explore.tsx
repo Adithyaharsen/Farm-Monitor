@@ -1,9 +1,11 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { Alert, View, Text, StyleSheet } from 'react-native';
 import { useState, useEffect } from 'react';
 import { LogEntry } from './logs';
 import axios from 'axios';
 
 const API_URL = 'https://api.thingspeak.com/channels/2872903/feeds.json?api_key=2AOWTSFZ2LBH1SLI&results=1';
+
+const [alertShown, setAlertShown] = useState(false);
 
 const cardColors: Record<keyof Omit<LogEntry, 'time' | 'color'>, { bgColor: string; valueBgColor: string }> = {
   nitrogen: { bgColor: '#ff4d4d', valueBgColor: '#ff6666' },
@@ -25,7 +27,7 @@ export default function ExploreScreen() {
         const response = await fetch(API_URL);
         const data = await response.json();
         const entry = data.feeds[0]; // Get the latest log
-
+        
         const response1 = await axios.post("http://192.168.1.124:5000/predict", {
           nitrogen: entry.field5,
           phosphorus: entry.field6,
@@ -33,10 +35,17 @@ export default function ExploreScreen() {
           temperature: entry.field1,
           moisture: entry.field2,
         });
-        const anomalies = response1.data.anomalous_features;
-        console.log(response1);
-        console.log(response1.data);
-        console.log(anomalies);
+        const anomaly = response1.data.anomaly;
+        if (anomaly && !alertShown) {
+          const anomalies = response1.data.anomalous_features;
+          Alert.alert(
+            "⚠️ Anomaly Detected",
+            `Anomaly arose in: ${anomalies.join(', ')}`,
+            [{ text: "OK", onPress: () => console.log("Alert closed") }]
+          );
+          setAlertShown(true); // Avoid future alerts until app reloads or you reset it
+        }
+        
 
         if (entry) {
           setLatestLog({
@@ -48,7 +57,7 @@ export default function ExploreScreen() {
             moisture: entry.field2 ? `${entry.field2}%RH` : 'N/A',
             ph: entry.field4 ? entry.field4 : 'N/A',
             conductivity: entry.field3 ? `${entry.field3}mm` : 'N/A',
-            color: '#4d88ff', 
+            color: '#4d88ff',
           });
         }
       } catch (error) {
