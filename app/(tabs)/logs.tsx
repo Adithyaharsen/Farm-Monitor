@@ -9,9 +9,9 @@ export type LogEntry = {
   phosphorus: string;
   potassium: string;
   temperature: string;
-  humidity: string;
+  moisture: string;
   ph: string;
-  rainfall: string;
+  conductivity: string;
   color: string;
 };
 
@@ -19,7 +19,7 @@ const API_URL = 'https://api.thingspeak.com/channels/2872903/feeds.json?api_key=
 
 export default function LogsScreen() {
   const [selectedAttribute, setSelectedAttribute] = useState<keyof LogEntry>('nitrogen');
-  const attributes: (keyof LogEntry)[] = ['nitrogen', 'phosphorus', 'potassium', 'temperature', 'humidity', 'ph', 'rainfall'];
+  const attributes: (keyof LogEntry)[] = ['nitrogen', 'phosphorus', 'potassium', 'temperature', 'moisture', 'ph', 'conductivity'];
   const [logs, setLogs] = useState<LogEntry[]>([]);
 
   // ✅ Fetch data from ThingSpeak every 30 seconds
@@ -33,13 +33,13 @@ export default function LogsScreen() {
           const colors = ['#1E1E1E', '#252525', '#2E2E2E', '#3A3A3A'];
           const parsedLogs: LogEntry[] = data.feeds.map((entry: any, index: number) => ({
             time: new Date(entry.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }),
-            nitrogen: entry.field1 ? `${entry.field1}%` : 'N/A',
-            phosphorus: entry.field2 ? `${entry.field2}%` : 'N/A',
-            potassium: entry.field3 ? `${entry.field3}%` : 'N/A',
-            temperature: entry.field4 ? `${entry.field4}°C` : 'N/A',
-            humidity: entry.field5 ? `${entry.field5}%` : 'N/A',
-            ph: entry.field6 ? entry.field6 : 'N/A',
-            rainfall: entry.field7 ? `${entry.field7}mm` : 'N/A',
+            nitrogen: entry.field5 ? `${entry.field1}mg/kg` : 'N/A',
+            phosphorus: entry.field6 ? `${entry.field2}mg/kg` : 'N/A',
+            potassium: entry.field7 ? `${entry.field3}mg/kg` : 'N/A',
+            temperature: entry.field1 ? `${entry.field4}°C` : 'N/A',
+            moisture: entry.field2 ? `${entry.field5}%RH` : 'N/A',
+            ph: entry.field6 ? entry.field4 : 'N/A',
+            conductivity: entry.field3 ? `${entry.field7}us/cm` : 'N/A',
             color: colors[index % colors.length],
           }));
 

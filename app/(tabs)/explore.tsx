@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { useState, useEffect } from 'react';
 import { LogEntry } from './logs'; // ✅ Import LogEntry type
+import axios from 'axios';
 
 const API_URL = 'https://api.thingspeak.com/channels/2872903/feeds.json?api_key=2AOWTSFZ2LBH1SLI&results=1';
 // ✅ Replace with your ThingSpeak channel ID
@@ -26,13 +27,35 @@ export default function ExploreScreen() {
         const response = await fetch(API_URL);
         const data = await response.json();
         const entry = data.feeds[0]; // Get the latest log
+        
+
+        let anomalies: string[] = [];
+
+        const payload = {
+          nitrogen: entry.field5,
+          phosphorus: entry.field6,
+          potassium: entry.field7,
+          temperature: entry.field1,
+          moisture: entry.field2
+        };
+
+        axios
+          .post('http://10.96.41.137:5000/predict', payload)
+          .then((response) => {
+            anomalies = response.data.anomalous_features || [];
+            console.log('Anomalous Features:', anomalies);
+          })
+          .catch((error) => {
+            console.error('Error fetching anomalies:', error);
+          });
+
 
         if (entry) {
           setLatestLog({
             time: new Date(entry.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }),
-            nitrogen: entry.field1 ? `${entry.field1}%` : 'N/A',
-            phosphorus: entry.field2 ? `${entry.field2}%` : 'N/A',
-            potassium: entry.field3 ? `${entry.field3}%` : 'N/A',
+            nitrogen: entry.field1 ? `${entry.field1}mg/kg` : 'N/A',
+            phosphorus: entry.field2 ? `${entry.field2}mg/kg` : 'N/A',
+            potassium: entry.field3 ? `${entry.field3}mg/kg` : 'N/A',
             temperature: entry.field4 ? `${entry.field4}°C` : 'N/A',
             humidity: entry.field5 ? `${entry.field5}%` : 'N/A',
             ph: entry.field6 ? entry.field6 : 'N/A',
