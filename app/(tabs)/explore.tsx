@@ -36,15 +36,6 @@ export default function ExploreScreen() {
           moisture: entry.field2,
         });
         const anomaly = response1.data.anomaly;
-        if (anomaly && !alertShown) {
-          const anomalies = response1.data.anomalous_features;
-          Alert.alert(
-            "⚠️ Anomaly Detected",
-            `Anomaly arose in: ${anomalies.join(', ')}`,
-            [{ text: "OK", onPress: () => console.log("Alert closed") }]
-          );
-          setAlertShown(true); // Avoid future alerts until app reloads or you reset it
-        }
         
 
         if (entry) {
@@ -55,10 +46,28 @@ export default function ExploreScreen() {
             potassium: entry.field7 ? `${entry.field7}mg/kg` : 'N/A',
             temperature: entry.field1 ? `${entry.field1}°C` : 'N/A',
             moisture: entry.field2 ? `${entry.field2}%RH` : 'N/A',
-            ph: entry.field4 ? entry.field4 : 'N/A',
+            ph: entry.field4 ? anomaly : 'N/A',
             conductivity: entry.field3 ? `${entry.field3}mm` : 'N/A',
             color: '#4d88ff',
           });
+          
+          if (anomaly && !alertShown) {
+            const anomalies = response1.data.anomalous_features;
+            Alert.alert(
+              "⚠️ Anomaly Detected",
+              `Anomaly arose in: ${anomalies.join(', ')}`,
+              [{ text: "OK", onPress: () => console.log("Alert closed") }]
+            );
+            setAlertShown(true); // Avoid future alerts until app reloads or you reset it
+          }
+          else{
+            Alert.alert(
+              "No Anomaly Detected",
+              `Anomaly arose in: nothing`,
+              [{ text: "OK", onPress: () => console.log("Alert closed") }]
+            );
+            setAlertShown(true);
+          }
         }
       } catch (error) {
         console.error('Error fetching latest log:', error);
