@@ -26,7 +26,7 @@ export default function ExploreScreen() {
         const data = await response.json();
         const entry = data.feeds[0]; // Get the latest log
         
-        const response1 = await axios.post("http://192.168.1.111:5000/predict", {
+        const response1 = await axios.post("http://192.168.137.247:5000/predict", {
           nitrogen: entry.field5,
           phosphorus: entry.field6,
           potassium: entry.field7,
@@ -45,7 +45,7 @@ export default function ExploreScreen() {
             temperature: entry.field1 ? `${entry.field1}°C` : 'N/A',
             moisture: entry.field2 ? `${entry.field2}%RH` : 'N/A',
             ph: entry.field4 ? entry.field4 : 'N/A',
-            conductivity: entry.field3 ? `${entry.field3}mm` : 'N/A',
+            conductivity: entry.field3 ? `${entry.field3}us/cm` : 'N/A',
             color: '#4d88ff',
           });
           if (anomaly) {
