@@ -15,14 +15,13 @@ export type LogEntry = {
   color: string;
 };
 
-const API_URL = 'https://api.thingspeak.com/channels/2872903/feeds.json?api_key=2AOWTSFZ2LBH1SLI&results=50'; // Replace with your ThingSpeak channel ID
+const API_URL = 'https://api.thingspeak.com/channels/2872903/feeds.json?api_key=2AOWTSFZ2LBH1SLI&results=50';
 
 export default function LogsScreen() {
   const [selectedAttribute, setSelectedAttribute] = useState<keyof LogEntry>('nitrogen');
-  const attributes: (keyof LogEntry)[] = ['nitrogen', 'phosphorus', 'potassium', 'temperature', 'moisture', 'ph', 'conductivity'];
+  const attributes: (keyof LogEntry)[] = ['temperature', 'moisture', 'conductivity', 'ph', 'nitrogen', 'phosphorus', 'potassium'];
   const [logs, setLogs] = useState<LogEntry[]>([]);
 
-  // ✅ Fetch data from ThingSpeak every 30 seconds
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -33,13 +32,13 @@ export default function LogsScreen() {
           const colors = ['#1E1E1E', '#252525', '#2E2E2E', '#3A3A3A'];
           const parsedLogs: LogEntry[] = data.feeds.map((entry: any, index: number) => ({
             time: new Date(entry.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }),
-            nitrogen: entry.field5 ? `${entry.field1}mg/kg` : 'N/A',
-            phosphorus: entry.field6 ? `${entry.field2}mg/kg` : 'N/A',
-            potassium: entry.field7 ? `${entry.field3}mg/kg` : 'N/A',
-            temperature: entry.field1 ? `${entry.field4}°C` : 'N/A',
-            moisture: entry.field2 ? `${entry.field5}%RH` : 'N/A',
-            ph: entry.field6 ? entry.field4 : 'N/A',
-            conductivity: entry.field3 ? `${entry.field7}us/cm` : 'N/A',
+            nitrogen: entry.field5 ? `${entry.field5}mg/kg` : 'N/A',
+            phosphorus: entry.field6 ? `${entry.field6}mg/kg` : 'N/A',
+            potassium: entry.field7 ? `${entry.field7}mg/kg` : 'N/A',
+            temperature: entry.field1 ? `${entry.field1}°C` : 'N/A',
+            moisture: entry.field2 ? `${entry.field2}%RH` : 'N/A',
+            ph: entry.field4 ? entry.field4 : 'N/A',
+            conductivity: entry.field3 ? `${entry.field3}us/cm` : 'N/A',
             color: colors[index % colors.length],
           }));
 
@@ -50,10 +49,10 @@ export default function LogsScreen() {
       }
     };
 
-    fetchData(); // Initial fetch
-    const interval = setInterval(fetchData, 30000); // Fetch every 30 seconds
+    fetchData();
+    const interval = setInterval(fetchData, 10000);
 
-    return () => clearInterval(interval); // Cleanup on unmount
+    return () => clearInterval(interval);
   }, []);
 
   return (

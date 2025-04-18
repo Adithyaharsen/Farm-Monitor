@@ -5,8 +5,6 @@ import axios from 'axios';
 
 const API_URL = 'https://api.thingspeak.com/channels/2872903/feeds.json?api_key=2AOWTSFZ2LBH1SLI&results=1';
 
-const [alertShown, setAlertShown] = useState(false);
-
 const cardColors: Record<keyof Omit<LogEntry, 'time' | 'color'>, { bgColor: string; valueBgColor: string }> = {
   nitrogen: { bgColor: '#ff4d4d', valueBgColor: '#ff6666' },
   phosphorus: { bgColor: '#ff944d', valueBgColor: '#ffad66' },
@@ -28,7 +26,7 @@ export default function ExploreScreen() {
         const data = await response.json();
         const entry = data.feeds[0]; // Get the latest log
         
-        const response1 = await axios.post("http://192.168.1.124:5000/predict", {
+        const response1 = await axios.post("http://192.168.1.111:5000/predict", {
           nitrogen: entry.field5,
           phosphorus: entry.field6,
           potassium: entry.field7,
@@ -50,15 +48,13 @@ export default function ExploreScreen() {
             conductivity: entry.field3 ? `${entry.field3}mm` : 'N/A',
             color: '#4d88ff',
           });
-          
-          if (anomaly && !alertShown) {
+          if (anomaly) {
             const anomalies = response1.data.anomalous_features;
             Alert.alert(
               "⚠️ Anomaly Detected",
               `Anomaly arose in: ${anomalies.join(', ')}`,
               [{ text: "OK", onPress: () => console.log("Alert closed") }]
             );
-            setAlertShown(true); // Avoid future alerts until app reloads or you reset it
           }
         }
       } catch (error) {
