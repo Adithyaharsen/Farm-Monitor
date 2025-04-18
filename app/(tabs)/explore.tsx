@@ -46,7 +46,7 @@ export default function ExploreScreen() {
             potassium: entry.field7 ? `${entry.field7}mg/kg` : 'N/A',
             temperature: entry.field1 ? `${entry.field1}°C` : 'N/A',
             moisture: entry.field2 ? `${entry.field2}%RH` : 'N/A',
-            ph: entry.field4 ? anomaly : 'N/A',
+            ph: entry.field4 ? entry.field4 : 'N/A',
             conductivity: entry.field3 ? `${entry.field3}mm` : 'N/A',
             color: '#4d88ff',
           });
