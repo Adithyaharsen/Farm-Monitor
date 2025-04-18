@@ -12,9 +12,9 @@ const cardColors: Record<keyof Omit<LogEntry, 'time' | 'color'>, { bgColor: stri
   phosphorus: { bgColor: '#ff944d', valueBgColor: '#ffad66' },
   potassium: { bgColor: '#ffcc4d', valueBgColor: '#ffd966' },
   temperature: { bgColor: '#aaff4d', valueBgColor: '#bfff66' },
-  humidity: { bgColor: '#4dff88', valueBgColor: '#66ffaa' },
+  moisture: { bgColor: '#4dff88', valueBgColor: '#66ffaa' },
   ph: { bgColor: '#4dd2ff', valueBgColor: '#66e0ff' },
-  rainfall: { bgColor: '#4d88ff', valueBgColor: '#6699ff' },
+  conductivity: { bgColor: '#4d88ff', valueBgColor: '#6699ff' },
 };
 
 export default function ExploreScreen() {
@@ -53,13 +53,13 @@ export default function ExploreScreen() {
         if (entry) {
           setLatestLog({
             time: new Date(entry.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }),
-            nitrogen: entry.field1 ? `${entry.field1}mg/kg` : 'N/A',
-            phosphorus: entry.field2 ? `${entry.field2}mg/kg` : 'N/A',
-            potassium: entry.field3 ? `${entry.field3}mg/kg` : 'N/A',
-            temperature: entry.field4 ? `${entry.field4}°C` : 'N/A',
-            humidity: entry.field5 ? `${entry.field5}%` : 'N/A',
-            ph: entry.field6 ? entry.field6 : 'N/A',
-            rainfall: entry.field7 ? `${entry.field7}mm` : 'N/A',
+            nitrogen: entry.field5 ? `${entry.field5}mg/kg` : 'N/A',
+            phosphorus: entry.field6 ? `${entry.field6}mg/kg` : 'N/A',
+            potassium: entry.field7 ? `${entry.field7}mg/kg` : 'N/A',
+            temperature: entry.field1 ? `${entry.field1}°C` : 'N/A',
+            moisture: entry.field2 ? `${entry.field2}%RH` : 'N/A',
+            ph: entry.field4 ? entry.field4 : 'N/A',
+            conductivity: entry.field3 ? `${entry.field3}mm` : 'N/A',
             color: '#4d88ff', // Default color (not used now since we restored colors per field)
           });
         }
